@@ -1,0 +1,39 @@
+from flask import Flask
+
+
+
+app = Flask(__name__)
+
+@app.route('/')
+def hello_world():
+    return "Hello World!"
+
+app.run()
+
+#%%
+from PIL import Image
+import plotly as py
+import plotly.graph_objs as go
+import numpy as np
+import plotly.io as io
+io.renderers.default='browser'
+
+# Need to map image onto sphere
+
+def sphere(x, y, z, r, res = 100):
+    """
+    Make a sphere.
+    Arguments: Cartesian coords (x, y, z), radius r, resolution res.
+    Returns coordinates (x, y, z)
+    """
+    phi, theta = np.mgrid[0:2*np.pi:res*2j, 0:np.pi:res*1j]
+    X = r * np.sin(theta) * np.cos(phi) + x
+    Y = r * np.sin(theta) * np.sin(phi) + y
+    Z = r * np.cos(theta) + z
+    return (X, Y, Z)
+
+x_s, y_s, z_s = sphere(x = 10, y = 10, z = 10, r = 10)
+data = go.Surface(x = x_s, y=y_s, z=z_s, opacity=1)
+
+fig = go.Figure(data=data)
+fig.show()
