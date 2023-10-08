@@ -1,5 +1,5 @@
 #using plotly
-##################################### USE THIS ONE FOR PLOTLY ###############################
+
 from PIL import Image
 import plotly as py
 import plotly.graph_objs as go
@@ -13,19 +13,16 @@ import scipy as sp
 
 io.renderers.default='browser'
 
+# Define a sphere. Returns x, y, z coordinates.
 def new_sphere(r, texture):
-    lat = int(texture.shape[0])
-    lon = int(texture.shape[1])
-    long = np.linspace(-180, 180, texture.shape[1]) * np.pi/180  #longitude in degree
-    lat = np.linspace(-90, 90, texture.shape[0])[::-1] * np.pi/180  #latitude in degree
-    X = r * np.outer(np.cos(long), np.cos(lat)).T #
+    long = np.linspace(-180, 180, texture.shape[1]) * np.pi/180  #longitude in radians
+    lat = np.linspace(-90, 90, texture.shape[0])[::-1] * np.pi/180  #latitude in radians
+    X = r * np.outer(np.cos(long), np.cos(lat)).T # calculate x, y,z coords using latitude and longitude
     Y = r * np.outer(np.sin(long), np.cos(lat)).T
     Z = r * np.outer(np.ones(np.size(long)), np.sin(lat)).T
     return X, Y, Z
 
-texture = np.asarray(Image.open('moon_surface_gs.jpg'))
-# resize image and divide by 256 for RGB value compatible with matplotlib
-#x_s, y_s, z_s = new_sphere(r = 10, texture=texture)
+texture = np.asarray(Image.open('moon_surface_gs.jpg')) # open image to overlay on sphere
 
 # coords of image
 lon = np.linspace(-180, 180, texture.shape[1]) * np.pi/180 
@@ -39,7 +36,7 @@ A,  lat, lat_err, long, long_err, dep, dep_err = sp.loadtxt('nakamura_2005_dm_lo
 x0 = []
 y0 = []
 z0 = []
-r=10.3
+r=10.3 # points are plotted at a slightly larger radius than the sphere surface so that they are visible and appear to hover.
 for i in range(len(lat)):
     lat_p = lat[i]
     long_p = long[i]
@@ -55,10 +52,10 @@ data = go.Surface(x = x, y=y, z=z, colorscale='Greys', surfacecolor=texture, opa
 layout = go.Layout(scene=dict(aspectratio=dict(x=1, y=1, z=1)))
     
 fig = go.Figure(data=data)
-fig.add_scatter3d(x = x0, y=y0, z=z0, mode='markers', marker = dict(size=5, colorscale='Reds'))
+fig.add_scatter3d(x = x0, y=y0, z=z0, mode='markers', marker = dict(size=5, colorscale='Reds')) # add points to figure
 fig.update_layout(
     scene = dict(
-        xaxis = dict(visible=False),
+        xaxis = dict(visible=False), # remove axes
         yaxis = dict(visible=False),
         zaxis =dict(visible=False)
         )
