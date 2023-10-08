@@ -1,39 +1,66 @@
-from flask import Flask
-
-
-
-app = Flask(__name__)
-
-@app.route('/')
-def hello_world():
-    return "Hello World!"
-
-app.run()
-
-#%%
+#using plotly
+##################################### USE THIS ONE FOR PLOTLY ###############################
 from PIL import Image
 import plotly as py
 import plotly.graph_objs as go
 import numpy as np
 import plotly.io as io
+from skimage import io as skio
+import plotly.express as px
+import matplotlib.pyplot as plt
+import scipy as sp
+
+
 io.renderers.default='browser'
 
-# Need to map image onto sphere
+def new_sphere(r, texture):
+    lat = int(texture.shape[0])
+    lon = int(texture.shape[1])
+    long = np.linspace(-180, 180, texture.shape[1]) * np.pi/180  #longitude in degree
+    lat = np.linspace(-90, 90, texture.shape[0])[::-1] * np.pi/180  #latitude in degree
+    X = r * np.outer(np.cos(long), np.cos(lat)).T #
+    Y = r * np.outer(np.sin(long), np.cos(lat)).T
+    Z = r * np.outer(np.ones(np.size(long)), np.sin(lat)).T
+    return X, Y, Z
 
-def sphere(x, y, z, r, res = 100):
-    """
-    Make a sphere.
-    Arguments: Cartesian coords (x, y, z), radius r, resolution res.
-    Returns coordinates (x, y, z)
-    """
-    phi, theta = np.mgrid[0:2*np.pi:res*2j, 0:np.pi:res*1j]
-    X = r * np.sin(theta) * np.cos(phi) + x
-    Y = r * np.sin(theta) * np.sin(phi) + y
-    Z = r * np.cos(theta) + z
-    return (X, Y, Z)
+texture = np.asarray(Image.open('moon_surface_gs.jpg'))
+# resize image and divide by 256 for RGB value compatible with matplotlib
+#x_s, y_s, z_s = new_sphere(r = 10, texture=texture)
 
-x_s, y_s, z_s = sphere(x = 10, y = 10, z = 10, r = 10)
-data = go.Surface(x = x_s, y=y_s, z=z_s, opacity=1)
+# coords of image
+lon = np.linspace(-180, 180, texture.shape[1]) * np.pi/180 
+lat = np.linspace(-90, 90, texture.shape[0])[::-1] * np.pi/180 
+x,y,z = new_sphere(r=10, texture = texture)
 
+
+# moonquake data (deep mq locations)
+A,  lat, lat_err, long, long_err, dep, dep_err = sp.loadtxt('nakamura_2005_dm_locations.csv', skiprows=1, delimiter=',',usecols=[0,2,3,4,5,6,7] , unpack=True)
+
+x0 = []
+y0 = []
+z0 = []
+r=10.3
+for i in range(len(lat)):
+    lat_p = lat[i]
+    long_p = long[i]
+    x_p = r * np.cos(long_p) * np.cos(lat_p)
+    y_p = r * np.sin(long_p) * np.cos(lat_p)
+    z_p = r * np.sin(lat_p)
+    #print(x_p, y_p, z_p)
+    x0.append(x_p)
+    y0.append(y_p)
+    z0.append(z_p)
+
+data = go.Surface(x = x, y=y, z=z, colorscale='Greys', surfacecolor=texture, opacity=1)
+layout = go.Layout(scene=dict(aspectratio=dict(x=1, y=1, z=1)))
+    
 fig = go.Figure(data=data)
+fig.add_scatter3d(x = x0, y=y0, z=z0, mode='markers', marker = dict(size=5, colorscale='Reds'))
+fig.update_layout(
+    scene = dict(
+        xaxis = dict(visible=False),
+        yaxis = dict(visible=False),
+        zaxis =dict(visible=False)
+        )
+    )
 fig.show()
