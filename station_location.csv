@@ -1,0 +1,6 @@
+﻿Station Code,Station Name,Latitude,Longitude,Start,End,Data Center(s)
+S11,"ALSEP 11, Mare Tranquillitatis, Moon",0.67416,23.473146,21/07/1969,26/08/1969,IRISDMC
+S12,"ALSEP 12, Oceanus Procellarum, Moon",-3.01084,-23.42456,19/11/1969,30/09/1977,IRISDMC
+S14,"ALSEP 14, Fra Mauro, Moon",-3.6445,-17.47753,05/02/1971,30/09/1977,IRISDMC
+S15,"ALSEP 15, Hadley Rille, Moon",26.13407,3.62981,31/07/1971,30/09/1977,IRISDMC
+S16,"ALSEP 16, Descartes, Moon",-8.97577,15.49649,21/04/1972,30/09/1977,IRISDMC
