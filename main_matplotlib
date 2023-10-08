@@ -1,0 +1,48 @@
+############################ USE MATPLOTLIB TO PLOT SPHERE ########################
+import matplotlib.pyplot as plt
+from PIL import Image
+import numpy as np
+from mpl_toolkits.mplot3d import Axes3D
+from matplotlib import animation
+import scipy as sp
+A,  lat, lat_err, long, long_err, dep, dep_err = sp.loadtxt('nakamura_2005_dm_locations.csv', skiprows=1, delimiter=',',usecols=[0,2,3,4,5,6,7] , unpack=True)
+print(lat)
+
+text = Image.open('moon_surface.jpg')
+# resize image and divide by 256 for RGB values compatible with matplotlib
+texture = np.array(text.resize([d/1 for d in text.size])) / 256
+
+# coords of image
+longitude = np.linspace(-180, 180, texture.shape[1]) * np.pi/180 # should be the other way round i fwe want to keep using these points
+latitude = np.linspace(-90, 90, texture.shape[0])[::-1] * np.pi/180 
+radius = 10
+
+fig = plt.figure()
+ax = fig.add_subplot(111, projection='3d') # First argument determines how many plots to print and its position
+
+# Making sphere
+x = radius * np.outer(np.cos(longitude), np.cos(latitude)).T # computes the outer product
+y = radius * np.outer(np.sin(longitude), np.cos(latitude)).T
+z = radius * np.outer(np.ones(np.size(longitude)), np.sin(latitude)).T
+
+# find x,y,z points
+x0 = []
+y0 = []
+z0 = []
+r = 10.5
+for i in range(len(lat)):
+    lat_p = lat[i]
+    long_p = long[i]
+    x_p = r * np.cos(long_p) * np.cos(lat_p)
+    y_p = r * np.sin(long_p) * np.cos(lat_p)
+    z_p = r * np.sin(lat_p)
+    #print(x_p, y_p, z_p)
+    x0.append(x_p)
+    y0.append(y_p)
+    z0.append(z_p)
+
+#print(len(x0), len(y0), len(z0))
+
+ax.plot_surface(x, y, z, rstride=3, cstride=3, facecolors = texture, alpha=1)
+ax.scatter(x0, y0, z0, marker='o', c = 'deeppink')
+plt.show()
