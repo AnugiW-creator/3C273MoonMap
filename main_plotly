@@ -22,7 +22,7 @@ def new_sphere(r, texture):
     Z = r * np.outer(np.ones(np.size(long)), np.sin(lat)).T
     return X, Y, Z
 
-texture = np.asarray(Image.open('moon_surface_gs.jpg')) # open image to overlay on sphere
+texture = np.asarray(Image.open('moon_surface_gsinv.jpg')) # open image to overlay on sphere
 
 # coords of image
 lon = np.linspace(-180, 180, texture.shape[1]) * np.pi/180 
